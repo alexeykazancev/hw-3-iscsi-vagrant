@@ -1,4 +1,5 @@
 NUM_NODES = 3
+NUM_ISCSI_NODE = 1
 NUM_CONTROLLER_NODE = 1
 IP_NTW = "192.168.56."
 CONTROLLER_IP_START = 2
@@ -23,11 +24,28 @@ Vagrant.configure("2") do |config|
 
     i = 0
 
+    (1..NUM_ISCSI_NODE).each do |i|
+        config.vm.define "node-iscsi" do |node|
+            node.vm.provider "virtualbox" do |vb|
+                vb.name = "node-iscsi"
+                vb.memory = 1024
+                vb.cpus = 2
+            end
+
+            node.vm.hostname = "node-iscsi"
+            node.vm.network "public_network", ip: IP_NTW + "#{NODE_IP_START + i + 3}"
+            node.vm.network "forwarded_port", guest: 22, host: "#{2730 + i}"
+        end
+    end
+
+
+    i = 0
+
     (1..NUM_CONTROLLER_NODE).each do [i] 
         config.vm.define "nodecontroller" do |node|
             node.vm.provider "virtualbox" do |vb|
                 vb.name = "nodecontroller"
-                vb.memory = 2048
+                vb.memory = 1024
                 vb.cpus = 2
             end
 
