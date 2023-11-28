@@ -1,13 +1,13 @@
 NUM_NODES = 3
 NUM_ISCSI_NODE = 1
-NUM_CONTROLLER_NODE = 1
+#NUM_CONTROLLER_NODE = 1
 IP_NTW = "192.168.56."
-CONTROLLER_IP_START = 2
+#CONTROLLER_IP_START = 2
 NODE_IP_START = 3
 
 Vagrant.configure("2") do |config|
-    config.vm.box = "ubuntu/focal64"
-    config.vm.box_url = "file://focal-server-cloudimg-amd64-vagrant.box"
+    config.vm.box = "boxomatic/rocky-8"
+    config.vm.box_url = "file://rocky-8.box"
     (1..NUM_NODES).each do |i|
         config.vm.define "node0#{i}" do |node|
             node.vm.provider "virtualbox" do |vb|
@@ -17,8 +17,14 @@ Vagrant.configure("2") do |config|
             end
 
             node.vm.hostname = "node0#{i}"
-            node.vm.network "public_network", ip: IP_NTW + "#{NODE_IP_START + i}"
-            node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
+            node.vm.network "public_network",bridge: "virbr0", ip: IP_NTW + "#{NODE_IP_START + i}"
+            node.vm.network "forwarded_port", guest: 22, host: "#{8720 + i}"
+
+            node.vm.provision "shell", inline: <<-SHELL
+              #dnf update -y
+              dnf -y install curl wget mc sudo atop git rsync
+              
+            SHELL
         end
     end
 
@@ -33,29 +39,13 @@ Vagrant.configure("2") do |config|
             end
 
             node.vm.hostname = "node-iscsi"
-            node.vm.network "public_network", ip: IP_NTW + "#{NODE_IP_START + i + 3}"
-            node.vm.network "forwarded_port", guest: 22, host: "#{2730 + i}"
-        end
-    end
-
-
-    i = 0
-
-    (1..NUM_CONTROLLER_NODE).each do [i] 
-        config.vm.define "nodecontroller" do |node|
-            node.vm.provider "virtualbox" do |vb|
-                vb.name = "nodecontroller"
-                vb.memory = 1024
-                vb.cpus = 2
-            end
-
-            node.vm.hostname = "nodecontroller"
-            node.vm.network "public_network", ip: IP_NTW + "#{CONTROLLER_IP_START + i}"
-            node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
+            node.vm.network "public_network",bridge: "virbr0", ip: IP_NTW + "#{NODE_IP_START + i + 3}"
+            node.vm.network "forwarded_port", guest: 22, host: "#{8730 + i}"
 
             node.vm.provision "shell", inline: <<-SHELL
-              apt update
-              apt -y install ansible git wget curl mc
+              #dnf update -y
+              dnf -y install curl wget mc sudo atop git rsync
+              
             SHELL
         end
     end
