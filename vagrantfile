@@ -17,6 +17,7 @@ Vagrant.configure("2") do |config|
             end
 
             node.vm.hostname = "node0#{i}"
+            #node.vm.network "private_network", adapter: 2, :device => "eth1", auto_config: false, virtualbox__intnet: "internal-net"
             node.vm.network "public_network",bridge: "virbr0", ip: IP_NTW + "#{NODE_IP_START + i}"
             node.vm.network "forwarded_port", guest: 22, host: "#{8720 + i}"
 

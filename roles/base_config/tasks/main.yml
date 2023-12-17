@@ -1,0 +1,64 @@
+---
+- meta: end_play
+  when: (ansible_distribution != "RockyLinux" and ansible_distribution_major_version != "8")
+
+- name: Install epel-release
+  dnf:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - epel-release
+
+- name: Set timezone
+  timezone:
+    name: "{{ ntp_timezone }}"
+
+- name: Force timesync with chrony
+  shell: "chronyc -a makestep"
+
+- name: Install additional packages
+  dnf:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - python2-cryptography
+    - setools-console
+    - libsemanage-python
+    - policycoreutils-python
+
+- name: Set hostname
+  hostname:
+    name: "{{ ansible_hostname }}.{{ domain }}"
+
+- name: Add my own IP address to /etc/hosts instead localhost
+  replace:
+    path: "/etc/hosts"
+    regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
+    replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
+
+- name: Add node01 to /etc/hosts
+  lineinfile:
+    path: "/etc/hosts"
+    state: present
+    line: "192.168.56.3 node01.{{ domain }} node01"
+
+- name: Add node02 to /etc/hosts
+  lineinfile:
+    path: "/etc/hosts"
+    state: present
+    line: "192.168.56.4 node02.{{ domain }} node02"
+
+- name: Add node03 to /etc/hosts
+  lineinfile:
+    path: "/etc/hosts"
+    state: present
+    line: "192.168.56.5 node03.{{ domain }} node03"
+
+- name: Enable and start FirewallD
+  systemd:
+    name: firewalld
+    state: started
+    enabled: true
+...
