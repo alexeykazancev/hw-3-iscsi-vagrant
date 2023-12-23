@@ -5,3 +5,17 @@ https://computingforgeeks.com/step-by-step-guide-on-using-existing-virtual-machi
 https://app.vagrantup.com/ubuntu/boxes/focal64
 
 https://dev.to/kennibravo/vagrant-for-beginners-getting-started-with-examples-jlm
+
+https://cloud.centos.org/centos/9-stream/x86_64/images/  имэджи центоса старые
+
+
+	
+ansible-playbook tasks/app-deployment.yml --check -e ansible_ssh_port=2222
+
+https://github.com/mbfx/otus-linux-adm/blob/master/pacemaker_vbox_stand_demo/vagrantfile
+
+https://github.com/erlong15/otus-pacemaker/blob/master/Vagrantfile
+
+https://tokmakov.msk.ru/blog/item/435
+
+https://help.ubuntu.ru/wiki/vagrant

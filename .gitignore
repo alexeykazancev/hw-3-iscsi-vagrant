@@ -1,3 +1,4 @@
 focal-server-cloudimg-amd64-vagrant.box
 /.vagrant
 rocky-8.box
+CentOS-Stream-8.box
