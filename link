@@ -19,3 +19,5 @@ https://github.com/erlong15/otus-pacemaker/blob/master/Vagrantfile
 https://tokmakov.msk.ru/blog/item/435
 
 https://help.ubuntu.ru/wiki/vagrant
+
+https://developer.hashicorp.com/vagrant/docs/networking/private_network  описаниее переменных в вагрант файле
