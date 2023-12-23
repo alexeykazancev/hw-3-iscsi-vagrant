@@ -1,10 +1,3 @@
-#NUM_NODES = 3
-#NUM_ISCSI_NODE = 1
-#NUM_CONTROLLER_NODE = 1
-#IP_NTW = "192.168.56."
-#CONTROLLER_IP_START = 2
-#NODE_IP_START = 3
-
 Vagrant.configure("2") do |config|
     config.vm.box = "boxomatic/rocky-8"
     config.vm.box_url = "file://rocky-8.box"
@@ -16,10 +9,9 @@ Vagrant.configure("2") do |config|
             end
 
             node.vm.hostname = "node01"
-            node.vm.network "private_network", adapter: 1, :device => "eth1", auto_config: false, virtualbox__intnet: "internal-net"
-            #node.vm.network "public_network",bridge: "virbr0", ip: IP_NTW + "#{NODE_IP_START + i}"
-            node.vm.network "private_network", adapter: 2, :device => "eth2", ip: 192.168.56.3", virtualbox__vboxnet0: "virtual-host-adapter"
-            node.vm.network "forwarded_port", guest: 22, host: "2220"
+            node.vm.network "private_network", adapter: 1, :device => "eth1", auto_config: true, virtualbox__intnet: "internal-net"
+            node.vm.network "private_network", adapter: 2, :device => "eth2", ip: "192.168.56.3", virtualbox__vboxnet0: "virtual-host-adapter"
+            node.vm.network "forwarded_port", guest: 22, guest_ip: "192.168.56.3", host: "2220"
 
             node.vm.provision "shell", inline: <<-SHELL
               #dnf update -y
@@ -27,24 +19,60 @@ Vagrant.configure("2") do |config|
 
             SHELL
         
-        
+        end
+
+        config.vm.define "node02" do |node|
+            node.vm.provider "virtualbox" do |vb|
+                vb.name = "node02"
+                vb.memory = 2048
+                vb.cpus = 2
+            end
+
+            node.vm.hostname = "node02"
+            node.vm.network "private_network", adapter: 1, :device => "eth1", auto_config: true, virtualbox__intnet: "internal-net"
+            node.vm.network "private_network", adapter: 2, :device => "eth2", ip: "192.168.56.4", virtualbox__vboxnet0: "virtual-host-adapter"
+            node.vm.network "forwarded_port", guest: 22, guest_ip: "192.168.56.4", host: "2221"
+
+            node.vm.provision "shell", inline: <<-SHELL
+              #dnf update -y
+              dnf install curl wget mc sudo git rsync gfs2-utils lvm2-lockd sanlock -y
+
+            SHELL
+               
+        end
+
+        config.vm.define "node03" do |node|
+            node.vm.provider "virtualbox" do |vb|
+                vb.name = "node03"
+                vb.memory = 2048
+                vb.cpus = 2
+            end
+
+            node.vm.hostname = "node03"
+            node.vm.network "private_network", adapter: 1, :device => "eth1", auto_config: true, virtualbox__intnet: "internal-net"
+            node.vm.network "private_network", adapter: 2, :device => "eth2", ip: "192.168.56.5", virtualbox__vboxnet0: "virtual-host-adapter"
+            node.vm.network "forwarded_port", guest: 22, guest_ip: "192.168.56.5", host: "2222"
+
+            node.vm.provision "shell", inline: <<-SHELL
+              #dnf update -y
+              dnf install curl wget mc sudo git rsync gfs2-utils lvm2-lockd sanlock -y
+
+            SHELL
+               
         end
 
     
-
-    i = 0
-
-    (1..NUM_ISCSI_NODE).each do |i|
         config.vm.define "node-iscsi" do |node|
             node.vm.provider "virtualbox" do |vb|
                 vb.name = "node-iscsi"
-                vb.memory = 1024
+                vb.memory = 2048
                 vb.cpus = 2
             end
 
             node.vm.hostname = "node-iscsi"
-            node.vm.network "public_network",bridge: "virbr0", ip: IP_NTW + "#{NODE_IP_START + i + 3}"
-            node.vm.network "forwarded_port", guest: 22, host: "#{8730 + i}"
+            node.vm.network "private_network", adapter: 1, :device => "eth1", auto_config: true, virtualbox__intnet: "internal-net"
+            node.vm.network "private_network", adapter: 2, :device => "eth2", ip: "192.168.56.6", virtualbox__vboxnet0: "virtual-host-adapter"
+            node.vm.network "forwarded_port", guest: 22, guest_ip: "192.168.56.5", host: "2223"
 
             node.vm.provision "shell", inline: <<-SHELL
               #dnf update -y
@@ -52,11 +80,14 @@ Vagrant.configure("2") do |config|
               echo InitiatorName=iqn.2023-12.srv:56.56 | tee -a /etc/iscsi/initiatorname.iscsi
               
             SHELL
-        
-    
-        
+                
         end
         
+    config.vm.provision "ansible" do |ansible|
+        ansible.compatibility_mode = "2.0"
+        ansible.playbook = "main.yml"
+        ansible.verbose = "false"
+        ansible.become = "true"
     end
     
 end
