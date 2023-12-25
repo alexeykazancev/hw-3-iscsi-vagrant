@@ -13,7 +13,7 @@
     - automake
     - libtool
     - gcc
-    - python-pip
+    - platform-python-pip
     - nss-devel
     - libxml2-devel
     - uuid-devel

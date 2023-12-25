@@ -3,10 +3,10 @@
   when: (ansible_distribution != "RockyLinux" and ansible_distribution_major_version != "8")
 
 - name: Ensure the repository ha is enabled
-  ansible.builtin.dnf:
-    name: ha
-    enabled: yes
-
+  shell: 
+    cmd: dnf config-manager --set-enabled ha
+    cmd: dnf config-manager --set-enabled powertools
+  
 - name: Install Pacemaker
   dnf:
     name: "{{ packages }}"
@@ -27,11 +27,14 @@
   notify: "restart pcsd"
   no_log: true
 
-- name: Allow cluster processes on SELinux
-  seboolean:
-    name: daemons_enable_cluster_mode
-    state: yes
-    persistent: yes
+#- name: Allow cluster processes on SELinux
+#  systemd:
+#    name: pcsd.service
+#    enabled: true
+#  seboolean:
+#    name: daemons_enable_cluster_mode
+#    state: yes
+#    persistent: yes
 
 - name: Enable Pacemaker service
   systemd:
