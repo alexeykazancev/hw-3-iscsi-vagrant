@@ -2,6 +2,11 @@
 - meta: end_play
   when: (ansible_distribution != "RockyLinux" and ansible_distribution_major_version != "8")
 
+- name: Ensure the repository ha is enabled
+  ansible.builtin.dnf:
+    name: ha
+    enabled: yes
+
 - name: Install Pacemaker
   dnf:
     name: "{{ packages }}"

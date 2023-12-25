@@ -9,6 +9,7 @@
   vars:
     packages:
     - epel-release
+    - chrony
 
 - name: Set timezone
   timezone:
@@ -23,14 +24,15 @@
     state: present
   vars:
     packages:
-    - python2-cryptography
+    - python3-cryptography
     - setools-console
-    - libsemanage-python
-    - policycoreutils-python
+    - libsemanage
+    - policycoreutils-python-utils
 
 - name: Set hostname
   hostname:
     name: "{{ ansible_hostname }}.{{ domain }}"
+    use: systemd
 
 - name: Add my own IP address to /etc/hosts instead localhost
   replace:
@@ -42,23 +44,23 @@
   lineinfile:
     path: "/etc/hosts"
     state: present
-    line: "192.168.56.3 node01.{{ domain }} node01"
+    line: "192.168.56.101 node01.{{ domain }} node01"
 
 - name: Add node02 to /etc/hosts
   lineinfile:
     path: "/etc/hosts"
     state: present
-    line: "192.168.56.4 node02.{{ domain }} node02"
+    line: "192.168.56.102 node02.{{ domain }} node02"
 
 - name: Add node03 to /etc/hosts
   lineinfile:
     path: "/etc/hosts"
     state: present
-    line: "192.168.56.5 node03.{{ domain }} node03"
+    line: "192.168.56.103 node03.{{ domain }} node03"
 
 - name: Enable and start FirewallD
   systemd:
     name: firewalld
     state: started
-    enabled: true
+    enabled: false
 ...

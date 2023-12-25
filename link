@@ -16,8 +16,15 @@ https://github.com/mbfx/otus-linux-adm/blob/master/pacemaker_vbox_stand_demo/vag
 
 https://github.com/erlong15/otus-pacemaker/blob/master/Vagrantfile
 
-https://tokmakov.msk.ru/blog/item/435
+https://tokmakov.msk.ru/blog/item/435  Vagrant. Начало работы. Часть 2 из 2
 
-https://help.ubuntu.ru/wiki/vagrant
+https://help.ubuntu.ru/wiki/vagrant   vagrant + VirtualBox
 
 https://developer.hashicorp.com/vagrant/docs/networking/private_network  описаниее переменных в вагрант файле
+
+
+ssh user@192.168.1.1 -p 26
+
+node.vm.network :forwarded_port, id: 'ssh', guest: 22, host_ip: '127.0.0.1', host: ssh_host, auto_correct: false, adapter: 1   как указываем форвард конкретного интерфейса
+config.vm.network "forwarded_port", adapter: 2, guest: 22, host: 2222, id: "ssh"
+config.vm.network "private_network", adapter: 1, type: "dhcp"
